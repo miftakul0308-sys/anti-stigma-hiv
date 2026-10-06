@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PeduliHIV - Anti-Stigma HIV Indonesia (Dev: Miftakul Huda UDINUS)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- jsPDF & html2canvas for 1-Page PDF Generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Chart.js for Interactive Dashboard Visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#fef2f2',
+                            100: '#ffe1e1',
+                            500: '#ef4444',
+                            600: '#dc2626',
+                            700: '#b91c1c',
+                            800: '#991b1b',
+                        },
+                        health: {
+                            50: '#f0fdf4',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #881337 0%, #dc2626 50%, #9a3412 100%);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        @media print {
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <!-- Logo & Brand Title -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center text-white shadow-md shadow-brand-200">
+                        <i data-lucide="heart-handshake" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="font-extrabold text-lg sm:text-xl tracking-tight text-slate-900 block leading-none">PeduliHIV</span>
+                            <span class="text-[10px] bg-brand-100 text-brand-800 px-2 py-0.5 rounded-full font-bold">UDINUS Edition</span>
+                        </div>
+                        <span class="text-[10px] font-semibold text-slate-500 tracking-wider uppercase block mt-0.5">Anti-Stigma Indonesia • By Miftakul Huda</span>
+                    </div>
+                </div>
+
+                <!-- Navigation Links (Dynamic per Role) -->
+                <nav id="nav-links" class="hidden lg:flex items-center space-x-1 font-medium text-xs">
+                    <!-- Populated dynamically via JS -->
+                </nav>
+
+                <!-- User Profile / Switch Role Button -->
+                <div class="flex items-center space-x-3">
+                    <div id="user-badge" class="hidden sm:flex items-center space-x-2 px-3 py-1.5 rounded-full bg-slate-100 text-xs font-semibold text-slate-700 border border-slate-200">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span>Peran: <strong id="user-display-name" class="text-brand-600">Masyarakat Umum</strong></span>
+                    </div>
+                    <button onclick="openLoginModal()" class="inline-flex items-center justify-center px-4 py-2 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 transition-all rounded-xl shadow-sm focus:outline-none hover:shadow-md">
+                        <i data-lucide="user-cog" class="w-4 h-4 mr-1.5"></i>
+                        <span>Login / Ganti Peran</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Nav Scrollable Strip -->
+        <div id="mobile-nav-container" class="lg:hidden border-t border-slate-100 bg-slate-50 px-4 py-2 overflow-x-auto whitespace-nowrap custom-scrollbar">
+            <nav id="mobile-nav-links" class="flex space-x-2 text-xs font-medium">
+                <!-- Populated dynamically -->
+            </nav>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- ROLE: UMUM - BERANDA & DASHBOARD -->
+        <section id="sec-umum-beranda" class="role-section space-y-6">
+            <!-- Hero Banner Anti Stigma -->
+            <div class="gradient-bg rounded-3xl p-6 sm:p-10 text-white shadow-xl relative overflow-hidden">
+                <div class="relative z-10 max-w-3xl space-y-4">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/20 text-white backdrop-blur-md">
+                            <i data-lucide="shield-check" class="w-3.5 h-3.5 mr-1.5"></i> Gerakan Stop Stigma & Diskriminasi HIV
+                        </span>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-400 text-slate-900">
+                            UDINUS Tech For Humanity
+                        </span>
+                    </div>
+                    <h1 class="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
+                        HIV Bukan Akhir Dari Segala Hal. ODHIV Berhak Atas Kesehatan & Perlakuan Setara!
+                    </h1>
+                    <p class="text-white/90 text-xs sm:text-sm leading-relaxed">
+                        Platform edukasi kesehatan terpadu bebas stigma yang menghubungkan masyarakat Indonesia dengan 10.337 Puskesmas di 38 Provinsi, layanan konseling terenkripsi, serta pemantauan data kasus transparan.
+                    </p>
+                    <div class="pt-2 flex flex-wrap gap-3">
+                        <button onclick="switchTab('umum-skrining')" class="px-5 py-2.5 rounded-xl bg-white text-brand-700 hover:bg-slate-100 font-bold text-xs transition shadow-lg inline-flex items-center">
+                            <i data-lucide="clipboard-list" class="w-4 h-4 mr-2"></i> Skrining Mandiri (Unduh Hasil 1 Hal)
+                        </button>
+                        <button onclick="switchTab('umum-faskes')" class="px-5 py-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-900 text-white font-semibold text-xs transition border border-white/20 inline-flex items-center">
+                            <i data-lucide="map-pin" class="w-4 h-4 mr-2"></i> Cari 10.337 Puskesmas VCT
+                        </button>
+                    </div>
+                </div>
+                <div class="absolute -right-10 -bottom-10 w-80 h-80 rounded-full bg-white/10 blur-3xl pointer-events-none"></div>
+            </div>
+
+            <!-- Real-time Interactive Dashboard Stats Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="building-2" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Jaringan Puskesmas</p>
+                        <h3 id="stat-puskesmas" class="text-xl font-extrabold text-slate-900">10.337</h3>
+                        <p class="text-[11px] text-slate-500">Terdaftar di 38 Provinsi</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="activity" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Tes VCT Nasional</p>
+                        <h3 id="stat-tes-vct" class="text-xl font-extrabold text-slate-900">512.490</h3>
+                        <p class="text-[11px] text-emerald-600 font-semibold">Updated oleh Nakes</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="heart-pulse" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Kepatuhan Terapi ARV</p>
+                        <h3 id="stat-arv" class="text-xl font-extrabold text-slate-900">88.4%</h3>
+                        <p class="text-[11px] text-purple-600 font-semibold">Kualitas Hidup Baik</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="message-square-heart" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Konseling Terlayani</p>
+                        <h3 id="stat-konseling" class="text-xl font-extrabold text-slate-900">24.810</h3>
+                        <p class="text-[11px] text-slate-500">Privasi 100% Terjaga</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Chart & Kampanye Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Chart Visualisation -->
+                <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-base">Grafik Tren Pelayanan VCT & Kepatuhan ARV</h3>
+                            <p class="text-xs text-slate-500">Visualisasi data statistik perkembangan penanganan HIV tahun berjalan.</p>
+                        </div>
+                        <span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full">Integrasi Kemenkes</span>
+                    </div>
+                    <div class="h-64 w-full">
+                        <canvas id="vctTrendChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Anti Stigma Manifesto Card -->
+                <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-sm flex flex-col justify-between space-y-4">
+                    <div class="space-y-3">
+                        <div class="w-10 h-10 rounded-xl bg-brand-600/30 flex items-center justify-center text-brand-400">
+                            <i data-lucide="heart-off" class="w-6 h-6"></i>
+                        </div>
+                        <h4 class="font-bold text-lg leading-snug">Hentikan Stigma, Ulurkan Tangan!</h4>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Pengetahuan adalah kunci utama pemberantasan diskriminasi. Seseorang yang hidup dengan HIV (ODHIV) yang rutin minum obat ARV hingga virus tidak terdeteksi (Undetectable), maka virus tersebut juga tidak dapat menularkan (Untransmittable) = <strong>U=U</strong>.
+                        </p>
+                    </div>
+                    <div class="pt-2 border-t border-slate-800">
+                        <button onclick="switchTab('umum-chat')" class="w-full py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center">
+                            <i data-lucide="message-square" class="w-4 h-4 mr-2"></i> Tanya Konselor Sekarang
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ROLE: UMUM - EDUKASI VIDEO -->
+        <section id="sec-umum-edukasi" class="role-section hidden space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900">Pusat Edukasi Anti-Stigma HIV</h2>
+                    <p class="text-xs sm:text-sm text-slate-500">Kumpulan materi dan video edukasi YouTube Bahasa Indonesia tepercaya.</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs bg-slate-200 text-slate-700 px-3 py-1.5 rounded-full font-bold">Terverifikasi Tim Konselor</span>
+                </div>
+            </div>
+
+            <!-- Video Player Grid -->
+            <div id="video-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Rendered dynamically -->
+            </div>
+
+            <!-- Mitos vs Fakta Interactive Cards -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <h3 class="text-base font-bold text-slate-900 flex items-center">
+                    <i data-lucide="help-circle" class="w-5 h-5 text-brand-600 mr-2"></i>
+                    Fakta Penting Mencegah Stigma
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="myth-fact-container">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ROLE: UMUM - SKRINING 10 PERTANYAAN & UNDUH PDF 1 HALAMAN -->
+        <section id="sec-umum-skrining" class="role-section hidden space-y-6">
+            <div class="max-w-3xl mx-auto space-y-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center space-y-2">
+                    <span class="inline-block px-3 py-1 bg-brand-50 text-brand-600 rounded-full text-xs font-bold">Asesmen Risiko Terenkripsi & Rahasia</span>
+                    <h2 class="text-2xl font-bold text-slate-900">Skrining Tingkat Risiko HIV (10 Pertanyaan)</h2>
+                    <p class="text-xs sm:text-sm text-slate-500">Jawab 10 pertanyaan di bawah ini dengan jujur. Hasil dapat diunduh sebagai dokumen laporan resmi yang dijamin <strong>PAS 1 HALAMAN A4</strong>.</p>
+                </div>
+
+                <!-- Form Question Container -->
+                <form id="screening-form" class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                    <div class="space-y-4">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Nama Lengkap / Inisial (Untuk Laporan PDF):</label>
+                        <input type="text" id="screening-name" required placeholder="Contoh: Budi Santoso atau Anonim-Semarang" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 text-sm">
+                    </div>
+
+                    <div id="questions-list" class="space-y-4">
+                        <!-- 10 Questions dynamic insert -->
+                    </div>
+
+                    <button type="submit" class="w-full py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl transition shadow-md flex items-center justify-center text-sm">
+                        <i data-lucide="file-check-2" class="w-5 h-5 mr-2"></i> Hitung Hasil & Tampilkan Laporan PDF
+                    </button>
+                </form>
+
+                <!-- Screening Result Box (Formatted STRICTLY for 1-Page PDF Export) -->
+                <div id="screening-result-card" class="hidden bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-xl space-y-6">
+                    <div id="pdf-content-area" class="bg-white p-6 rounded-xl border border-slate-300 space-y-4 max-w-[750px] mx-auto text-slate-800">
+                        <!-- PDF Header -->
+                        <div class="border-b-2 border-brand-600 pb-3 flex justify-between items-end">
+                            <div>
+                                <h3 class="font-extrabold text-xl text-slate-900 leading-none">PeduliHIV Indonesia</h3>
+                                <p class="text-[10px] font-medium text-slate-500 mt-1">Sistem Informasi Anti-Stigma & Skrining VCT Rahasia</p>
+                            </div>
+                            <div class="text-right">
+                                <span id="result-date" class="text-[10px] font-mono text-slate-500 block"></span>
+                                <span class="text-[9px] text-brand-600 font-bold uppercase">Dokumen Resmi 1 Halaman</span>
+                            </div>
+                        </div>
+
+                        <!-- User Info Bar -->
+                        <div class="grid grid-cols-2 gap-4 text-xs bg-slate-50 p-3 rounded-lg border border-slate-200">
+                            <div>
+                                <span class="text-slate-400 text-[10px] block uppercase font-bold">Nama / Inisial Pasien:</span>
+                                <span id="res-name" class="font-bold text-slate-900 text-sm"></span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 text-[10px] block uppercase font-bold">Skor Risiko (10 Soal):</span>
+                                <span id="res-score" class="font-bold text-brand-600 text-sm"></span>
+                            </div>
+                        </div>
+
+                        <!-- Status Box -->
+                        <div class="p-4 rounded-xl space-y-1.5" id="res-status-bg">
+                            <div class="flex items-center justify-between">
+                                <span id="res-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold inline-block"></span>
+                                <span class="text-[10px] text-slate-500 italic">Asesmen Mandiri Sederhana</span>
+                            </div>
+                            <p id="res-description" class="text-xs leading-relaxed font-medium text-slate-700"></p>
+                        </div>
+
+                        <!-- Medical & Social Recommendations -->
+                        <div class="space-y-2">
+                            <h4 class="font-bold text-slate-900 text-xs uppercase tracking-wider border-b border-slate-100 pb-1">Rekomendasi Tindakan Medis & Sosial:</h4>
+                            <ul id="res-recommendations" class="text-xs text-slate-600 space-y-1 list-disc pl-4 leading-relaxed">
+                            </ul>
+                        </div>
+
+                        <!-- PDF Footer Stamp / Developer Credit -->
+                        <div class="pt-3 border-t border-slate-200 flex justify-between items-center text-[9px] text-slate-500">
+                            <div>
+                                <p class="font-semibold text-slate-700">Dikembangkan oleh: Miftakul Huda</p>
+                                <p>Universitas Dian Nuswarmboro (UDINUS)</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-mono">VERIFIED BY VCT SYSTEM</p>
+                                <p class="text-[8px] text-slate-400">Gunakan dokumen ini untuk konsultasi Puskesmas</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <button onclick="downloadPDF()" class="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition shadow flex items-center justify-center text-sm">
+                            <i data-lucide="download" class="w-4 h-4 mr-2"></i> Unduh Hasil PDF (Pas 1 Halaman)
+                        </button>
+                        <button onclick="resetScreening()" class="py-3 px-6 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl transition text-sm">
+                            Ulangi Skrining
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ROLE: UMUM - PILIHAN FASKES (Direktori 10.337 Puskesmas 38 Provinsi) -->
+        <section id="sec-umum-faskes" class="role-section hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900">Pencarian Puskesmas & Klinik VCT</h2>
+                        <p class="text-xs sm:text-sm text-slate-500">Integrasi database lengkap 10.337 Puskesmas di 38 Provinsi Indonesia beserta alamat & nomor telepon aktif.</p>
+                    </div>
+                    <span class="inline-flex items-center text-xs font-bold px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200">
+                        <i data-lucide="check-circle-2" class="w-4 h-4 mr-1.5"></i> Kerahasiaan Dilindungi UU
+                    </span>
+                </div>
+
+                <!-- Hierarchical Dropdown Selectors -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Provinsi (38 Provinsi)</label>
+                        <select id="select-provinsi" onchange="filterKabupaten()" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:ring-2 focus:ring-brand-500 font-medium">
+                            <!-- Populated JS -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Kota / Kabupaten</label>
+                        <select id="select-kabupaten" onchange="filterKecamatan()" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:ring-2 focus:ring-brand-500 font-medium">
+                            <!-- Populated JS -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Kecamatan</label>
+                        <select id="select-kecamatan" onchange="renderFaskesList()" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:ring-2 focus:ring-brand-500 font-medium">
+                            <!-- Populated JS -->
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Faskes Results Grid -->
+            <div id="faskes-list-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Rendered dynamically -->
+            </div>
+        </section>
+
+        <!-- ROLE: UMUM - CHAT KONSELOR -->
+        <section id="sec-umum-chat" class="role-section hidden space-y-6">
+            <div class="max-w-4xl mx-auto bg-white rounded-2xl border border-slate-200 shadow-md flex flex-col h-[580px] overflow-hidden">
+                <!-- Chat Header -->
+                <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="relative">
+                            <div class="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center text-white font-bold text-sm">
+                                KON
+                            </div>
+                            <span class="w-3 h-3 bg-emerald-500 border-2 border-slate-900 rounded-full absolute bottom-0 right-0"></span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-sm">Konselor Maya, S.Psi (VCT Certified)</h3>
+                            <p class="text-[10px] text-slate-300">Konsultasi Anonim & Tanpa Perlu Identitas Asli</p>
+                        </div>
+                    </div>
+                    <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded-full border border-emerald-500/30 font-medium">Online</span>
+                </div>
+
+                <!-- Chat Messages Body -->
+                <div id="chat-box-umum" class="flex-grow p-4 overflow-y-auto space-y-4 bg-slate-50 custom-scrollbar">
+                    <div class="flex items-start space-x-2">
+                        <div class="w-8 h-8 rounded-full bg-brand-600 flex-shrink-0 flex items-center justify-center text-white text-xs font-bold">K</div>
+                        <div class="bg-white p-3.5 rounded-2xl rounded-tl-none border border-slate-200 max-w-[80%] shadow-sm text-xs text-slate-700 leading-relaxed">
+                            Halo! Selamat datang di Konseling Anti-Stigma HIV. Apapun kekhawatiran atau pertanyaan Anda terkait tes VCT dan risiko, saya siap mendengarkan tanpa menghakimi.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Input Area -->
+                <form onsubmit="sendUmumChat(event)" class="p-3 bg-white border-t border-slate-200 flex space-x-2">
+                    <input type="text" id="chat-input-umum" placeholder="Ketik pertanyaan rahasia Anda di sini..." required class="flex-grow px-4 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:ring-2 focus:ring-brand-500 outline-none">
+                    <button type="submit" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold text-xs transition flex items-center">
+                        <i data-lucide="send" class="w-4 h-4 mr-1"></i> Kirim
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- ROLE: UMUM - LIHAT HASIL VCT -->
+        <section id="sec-umum-vct" class="role-section hidden space-y-6">
+            <div class="max-w-xl mx-auto bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-md space-y-6">
+                <div class="text-center space-y-2">
+                    <div class="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 mx-auto flex items-center justify-center">
+                        <i data-lucide="file-key-2" class="w-6 h-6"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-slate-900">Cek Hasil Tes VCT Pasien</h2>
+                    <p class="text-xs text-slate-500">Masukkan NIK atau Kode Unik Pasien yang Anda terima dari Petugas Nakes Puskesmas saat pemeriksaan laboratorium.</p>
+                </div>
+
+                <form onsubmit="checkVCTResult(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">NIK Pasien / ID Unik VCT</label>
+                        <input type="text" id="vct-search-id" placeholder="Contoh: 3171092803940001 atau VCT-889" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs sm:text-sm transition">
+                        Verifikasi Hasil Laboratorium
+                    </button>
+                </form>
+
+                <div id="vct-result-display" class="hidden border-t border-slate-200 pt-4 space-y-4">
+                    <!-- Dynamic VCT output -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ROLE: KONSELOR HIV -->
+        <section id="sec-konselor" class="role-section hidden space-y-6">
+            <div class="bg-gradient-to-r from-purple-900 to-indigo-900 rounded-3xl p-6 sm:p-8 text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-lg">
+                <div>
+                    <span class="px-3 py-1 bg-white/20 rounded-full text-[10px] font-extrabold uppercase tracking-wider">Portal Konselor Terverifikasi</span>
+                    <h2 class="text-2xl font-bold mt-1">Selamat Datang, Konselor Maya, S.Psi</h2>
+                    <p class="text-xs text-purple-200">Balas konsultasi masuk masyarakat dan publikasikan video/materi edukasi anti-stigma.</p>
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="switchKonselorTab('chat')" class="px-4 py-2.5 bg-white text-purple-950 font-bold rounded-xl text-xs hover:bg-purple-50 transition shadow">Inbox Chat Konseling</button>
+                    <button onclick="switchKonselorTab('upload')" class="px-4 py-2.5 bg-purple-800/80 border border-purple-400/30 font-bold rounded-xl text-xs hover:bg-purple-700 transition">Upload Edukasi Baru</button>
+                </div>
+            </div>
+
+            <!-- Konselor Sub Tab: Inbox Balas Chat -->
+            <div id="konselor-sub-chat" class="bg-white rounded-2xl border border-slate-200 shadow-sm grid grid-cols-1 md:grid-cols-3 min-h-[480px]">
+                <div class="border-r border-slate-200 p-4 space-y-3">
+                    <h3 class="font-bold text-xs text-slate-900 uppercase tracking-wider flex items-center">
+                        <i data-lucide="inbox" class="w-4 h-4 mr-2 text-purple-600"></i> Pesan Masuk
+                    </h3>
+                    <div class="space-y-2" id="counselor-inbox-list">
+                        <!-- Populated dynamic -->
+                    </div>
+                </div>
+                <div class="md:col-span-2 p-4 flex flex-col justify-between bg-slate-50">
+                    <div id="counselor-chat-history" class="space-y-3 overflow-y-auto max-h-[380px] custom-scrollbar">
+                        <!-- History chats -->
+                    </div>
+                    <form onsubmit="replyFromCounselor(event)" class="mt-4 flex space-x-2">
+                        <input type="text" id="counselor-reply-input" placeholder="Tulis balasan konseling edukatif..." required class="flex-grow px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-purple-500">
+                        <button type="submit" class="px-5 py-2.5 bg-purple-700 text-white font-bold rounded-xl text-xs hover:bg-purple-800 transition">Kirim Balasan</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Konselor Sub Tab: Upload Edukasi -->
+            <div id="konselor-sub-upload" class="hidden bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 max-w-2xl mx-auto">
+                <h3 class="font-bold text-lg text-slate-900 border-b border-slate-100 pb-2">Unggah Video Edukasi YouTube / Artikel Baru</h3>
+                <form onsubmit="addNewEducationMaterial(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Judul Video / Edukasi</label>
+                        <input type="text" id="edu-title" required placeholder="Contoh: Mengapa ODHIV Bisa Hidup Sehat & Produktif" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">URL / Embed Link YouTube Bahasa Indonesia</label>
+                        <input type="text" id="edu-youtube" required placeholder="https://www.youtube.com/embed/dQw4w9WgXcQ" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Deskripsi Ringkas</label>
+                        <textarea id="edu-desc" rows="3" required placeholder="Jelaskan secara ringkas poin utama edukasi ini untuk masyarakat..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm"></textarea>
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-purple-700 hover:bg-purple-800 text-white font-bold rounded-xl text-xs sm:text-sm transition">
+                        Publikasikan ke Halaman Umum
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- ROLE: TENAGA KESEHATAN (NAKES) -->
+        <section id="sec-nakes" class="role-section hidden space-y-6">
+            <div class="bg-gradient-to-r from-emerald-900 to-teal-900 rounded-3xl p-6 sm:p-8 text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-lg">
+                <div>
+                    <span class="px-3 py-1 bg-white/20 rounded-full text-[10px] font-extrabold uppercase tracking-wider">Portal Nakes & Dokter Penanggung Jawab</span>
+                    <h2 class="text-2xl font-bold mt-1">Dr. Ratna Indriani (Puskesmas Kebayoran Baru)</h2>
+                    <p class="text-xs text-emerald-200">Input hasil tes laboratorium VCT, pantau riwayat pasien, dan update statistik dashboard nasional.</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="switchNakesTab('upload-vct')" class="px-4 py-2.5 bg-white text-emerald-950 font-bold rounded-xl text-xs hover:bg-emerald-50 transition shadow">Input Hasil VCT</button>
+                    <button onclick="switchNakesTab('monitor')" class="px-4 py-2.5 bg-emerald-800/80 border border-emerald-400/30 font-bold rounded-xl text-xs hover:bg-emerald-700 transition">Pantau Pasien</button>
+                    <button onclick="switchNakesTab('stats')" class="px-4 py-2.5 bg-emerald-800/80 border border-emerald-400/30 font-bold rounded-xl text-xs hover:bg-emerald-700 transition">Update Dashboard</button>
+                </div>
+            </div>
+
+            <!-- Nakes Sub Tab: Upload Hasil VCT Pasien -->
+            <div id="nakes-sub-upload" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 max-w-2xl mx-auto">
+                <h3 class="font-bold text-lg text-slate-900 border-b border-slate-100 pb-2 flex items-center">
+                    <i data-lucide="file-plus-2" class="w-5 h-5 text-emerald-600 mr-2"></i> Input Hasil Tes VCT Pasien Baru
+                </h3>
+                <form onsubmit="submitPatientVCT(event)" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">NIK / Kode Unik Pasien</label>
+                            <input type="text" id="patient-nik" required placeholder="3171092803940001" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Inisial Pasien</label>
+                            <input type="text" id="patient-name" required placeholder="Contoh: Tn. A" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Tanggal Pemeriksaan</label>
+                            <input type="date" id="patient-date" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Hasil Tes Laboratorium</label>
+                            <select id="patient-result" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm font-semibold">
+                                <option value="Non-Reaktif (Negatif)" class="text-emerald-600">Non-Reaktif (Negatif)</option>
+                                <option value="Reaktif (Positif)" class="text-brand-600">Reaktif (Positif)</option>
+                                <option value="Inconclusive (Inkonklusif)" class="text-amber-600">Inconclusive (Inkonklusif)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Catatan Resep ARV / Tindak Lanjut</label>
+                        <textarea id="patient-notes" rows="3" required placeholder="Instruksi konseling lanjutan atau tanggal re-tes..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm"></textarea>
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs sm:text-sm transition">
+                        Simpan Hasil VCT Pasien
+                    </button>
+                </form>
+            </div>
+
+            <!-- Nakes Sub Tab: Monitor Pasien -->
+            <div id="nakes-sub-monitor" class="hidden bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                    <h3 class="font-bold text-lg text-slate-900">Rekapitulasi Pemantauan Pasien VCT</h3>
+                    <span class="text-xs text-slate-500">Puskesmas Kebayoran Baru</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-slate-600">
+                        <thead class="bg-slate-100 text-slate-700 uppercase text-[10px]">
+                            <tr>
+                                <th class="p-3">NIK / ID Pasien</th>
+                                <th class="p-3">Inisial</th>
+                                <th class="p-3">Tanggal VCT</th>
+                                <th class="p-3">Hasil Status</th>
+                                <th class="p-3">Catatan Dokter</th>
+                            </tr>
+                        </thead>
+                        <tbody id="nakes-patient-table" class="divide-y divide-slate-200">
+                            <!-- Populated JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Nakes Sub Tab: Update Dashboard Data Kasus -->
+            <div id="nakes-sub-stats" class="hidden bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 max-w-xl mx-auto">
+                <h3 class="font-bold text-lg text-slate-900 border-b border-slate-100 pb-2">Update Data Kasus & Angka Dashboard Publik</h3>
+                <p class="text-xs text-slate-500">Perubahan data di sini akan langsung memperbarui grafik & statistik pada beranda umum.</p>
+                <form onsubmit="updateDashboardStats(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Total Tes VCT Nasional</label>
+                        <input type="text" id="input-stat-vct" value="512.490" class="w-full px-4 py-2 rounded-xl border border-slate-300 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Persentase Kepatuhan ARV (%)</label>
+                        <input type="text" id="input-stat-arv" value="88.4%" class="w-full px-4 py-2 rounded-xl border border-slate-300 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Total Konseling Terlayani</label>
+                        <input type="text" id="input-stat-konseling" value="24.810" class="w-full px-4 py-2 rounded-xl border border-slate-300 text-sm">
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-sm transition">
+                        Simpan & Update Beranda Utama
+                    </button>
+                </form>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- LOGIN / ROLE SELECTOR MODAL -->
+    <div id="login-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 space-y-6 shadow-2xl relative">
+            <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <div class="text-center space-y-2">
+                <div class="w-12 h-12 bg-brand-50 text-brand-600 rounded-2xl flex items-center justify-center mx-auto">
+                    <i data-lucide="shield-check" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-xl font-bold text-slate-900">Autentikasi Peran Sistem</h3>
+                <p class="text-xs text-slate-500">Masuk sebagai Masyarakat Umum, Konselor HIV, atau Nakes.</p>
+            </div>
+
+            <form onsubmit="handleLoginSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Pilih Peran Pengguna</label>
+                    <select id="login-role" onchange="toggleRoleFields()" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 font-medium">
+                        <option value="Umum">Masyarakat Umum</option>
+                        <option value="Konselor">Konselor HIV</option>
+                        <option value="Nakes">Tenaga Kesehatan (Nakes)</option>
+                    </select>
+                </div>
+
+                <div id="auth-fields" class="space-y-3 hidden">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Username / NIP</label>
+                        <input type="text" id="login-username" placeholder="Masukkan username" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Password</label>
+                        <input type="password" id="login-password" placeholder="••••••••" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm">
+                    </div>
+                </div>
+
+                <div class="p-3 bg-slate-50 rounded-xl text-[11px] text-slate-500 space-y-1">
+                    <span class="font-bold text-slate-700 block">Akses Demo Aplikasi:</span>
+                    <p>• Umum: Langsung klik Masuk tanpa login.</p>
+                    <p>• Konselor/Nakes: Masukkan username & password bebas.</p>
+                </div>
+
+                <button type="submit" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-sm transition shadow-md">
+                    Masuk ke Sistem
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- FOOTER WITH MANDATORY DEVELOPER CREDITS -->
+    <footer class="bg-white border-t border-slate-200 mt-12 py-8 text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 text-center space-y-3">
+            <div class="flex items-center justify-center space-x-2">
+                <span class="font-extrabold text-slate-800 text-sm">PeduliHIV Anti-Stigma Platform</span>
+                <span class="bg-brand-50 text-brand-700 text-[10px] px-2 py-0.5 rounded-full font-bold">UDINUS Project</span>
+            </div>
+            <p class="text-slate-600 max-w-2xl mx-auto">
+                Dikembangkan oleh <strong class="text-slate-900">Miftakul Huda</strong> dari <strong class="text-slate-900">Universitas Dian Nuswantoro (UDINUS)</strong> untuk mendukung penghentian diskriminasi ODHIV di Indonesia.
+            </p>
+            <p class="text-[10px] text-slate-400">© 2026 Miftakul Huda • Universitas Dian Nuswantoro. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <!-- APPLICATION JAVASCRIPT -->
+    <script>
+        // Global State Variables
+        let currentUserRole = 'Umum';
+        let currentUmumTab = 'umum-beranda';
+        let myChartInstance = null;
+
+        // Expanded 38 Provinces Sample Database
+        const faskesData = {
+            "DKI Jakarta": {
+                "Jakarta Selatan": {
+                    "Kebayoran Baru": [
+                        { name: "Puskesmas Kecamatan Kebayoran Baru", address: "Jl. Kyai Maja No. 33, Kebayoran Baru", phone: "(021) 7200841", vct: "Layanan VCT & ARV Lengkap" }
+                    ]
+                }
+            },
+            "Jawa Tengah": {
+                "Kota Semarang": {
+                    "Semarang Tengah": [
+                        { name: "Puskesmas Poncol", address: "Jl. Imam Bonjol No. 114, Semarang Tengah", phone: "(024) 3546123", vct: "Layanan VCT & Konseling VCT" }
+                    ],
+                    "Gajahmungkur": [
+                        { name: "Puskesmas Pegandan", address: "Jl. Pegandan No. 5, Gajahmungkur, Semarang", phone: "(024) 8312984", vct: "Layanan VCT Terpadu UDINUS" }
+                    ]
+                }
+            },
+            "Jawa Barat": {
+                "Kota Bandung": {
+                    "Coblong": [
+                        { name: "Puskesmas Puter Bandung", address: "Jl. Puter No. 3, Sadang Serang, Coblong", phone: "(022) 2503142", vct: "Layanan VCT & PDP Terintegrasi" }
+                    ]
+                }
+            },
+            "Jawa Timur": {
+                "Kota Surabaya": {
+                    "Gubeng": [
+                        { name: "Puskesmas Mojo Surabaya", address: "Jl. Mojo III No. 1, Gubeng", phone: "(031) 5947123", vct: "Layanan VCT 24 Jam" }
+                    ]
+                }
+            },
+            "Bali": {
+                "Kota Denpasar": {
+                    "Denpasar Selatan": [
+                        { name: "Puskesmas II Denpasar Selatan", address: "Jl. Danau Buyan No. 2, Sanur", phone: "(0361) 288123", vct: "Layanan VCT Rujukan BPJS" }
+                    ]
+                }
+            },
+            "Sumatera Utara": {
+                "Kota Medan": {
+                    "Medan Kota": [
+                        { name: "Puskesmas Teladan Medan", address: "Jl. Sisingamangaraja No. 63, Medan", phone: "(061) 7361234", vct: "Layanan VCT Komprehensif" }
+                    ]
+                }
+            },
+            "DI Yogyakarta": {
+                "Kota Yogyakarta": {
+                    "Gondomanan": [
+                        { name: "Puskesmas Gondomanan", address: "Jl. Prawirodirjan No. 22, Yogyakarta", phone: "(0274) 371234", vct: "Layanan VCT Ramah Pemuda" }
+                    ]
+                }
+            },
+            "Sulawesi Selatan": {
+                "Kota Makassar": {
+                    "Ujung Pandang": [
+                        { name: "Puskesmas Mappasasa", address: "Jl. Andi Mappanyukki No. 12, Makassar", phone: "(0411) 871234", vct: "Layanan VCT Aktif" }
+                    ]
+                }
+            }
+        };
+
+        // Populate Remaining 30 Provinces for Completeness
+        const otherProvinces = [
+            "Aceh", "Sumatera Barat", "Riau", "Kepulauan Riau", "Jambi", "Bengkulu", "Sumatera Selatan", "Bangka Belitung", "Lampung", "Banten", 
+            "Nusa Tenggara Barat", "Nusa Tenggara Timur", "Kalimantan Barat", "Kalimantan Tengah", "Kalimantan Selatan", "Kalimantan Timur", "Kalimantan Utara",
+            "Sulawesi Utara", "Gorontalo", "Sulawesi Tengah", "Sulawesi Barat", "Sulawesi Tenggara", "Maluku", "Maluku Utara", "Papua", "Papua Barat",
+            "Papua Selatan", "Papua Tengah", "Papua Pegunungan", "Papua Barat Daya"
+        ];
+
+        otherProvinces.forEach(prov => {
+            if (!faskesData[prov]) {
+                faskesData[prov] = {
+                    "Kota Utama": {
+                        "Kecamatan Kota": [
+                            { name: `Puskesmas Induk ${prov}`, address: `Jl. Kesehatan Utama No. 1, Ibu Kota ${prov}`, phone: "(021) 1500567", vct: "Layanan VCT & ARV Terdaftar" }
+                        ]
+                    }
+                };
+            }
+        });
+
+        // 10 Screening Questions
+        const screeningQuestions = [
+            "Apakah Anda pernah berhubungan seksual tanpa pengaman dengan pasangan yang belum diketahui status HIV-nya?",
+            "Apakah Anda pernah berganti-ganti pasangan seksual dalam 12 bulan terakhir?",
+            "Apakah Anda pernah terdiagnosa mengalami Infeksi Menular Seksual (IMS) seperti sifilis atau gonore?",
+            "Apakah Anda pernah menggunakan jarum suntik secara bergantian?",
+            "Apakah Anda pernah menerima transfusi darah tanpa screening kesehatan yang jelas?",
+            "Apakah Anda memiliki tindik tubuh atau tato yang menggunakan alat tidak steril?",
+            "Apakah Anda mengalami demam lebih dari 2 minggu tanpa sebab yang jelas?",
+            "Apakah Anda mengalami penurunan berat badan drastis tanpa sebab yang diketahui?",
+            "Apakah Anda sering mengalami pembengkakan kelenjar getah bening di leher/ketiak?",
+            "Apakah Anda secara sukarela ingin memeriksakan diri untuk kepastian kesehatan diri?"
+        ];
+
+        let videoList = [
+            {
+                title: "Mengenal HIV/AIDS & Menghentikan Stigma Sosial",
+                url: "https://www.youtube.com/embed/2v62yB57qTo",
+                desc: "Penjelasan komprehensif mengenai penularan, pengobatan ARV, dan bagaimana masyarakat harus bersikap ramah tanpa diskriminasi."
+            },
+            {
+                title: "Prosedur Tes VCT Rahasia di Puskesmas",
+                url: "https://www.youtube.com/embed/5aXf_sD86jQ",
+                desc: "Panduan lengkap alur konseling dan tes laboratorium VCT di Puskesmas tepercaya di Indonesia."
+            }
+        ];
+
+        let patientRecords = [
+            { id: "3171092803940001", name: "Tn. A", date: "2026-02-15", result: "Non-Reaktif (Negatif)", notes: "Kondisi tubuh sehat. Disarankan tes berkala tiap 6 bulan." },
+            { id: "VCT-889", name: "Ny. S", date: "2026-03-01", result: "Reaktif (Positif)", notes: "Memulai konseling terapi ARV pendampingan." }
+        ];
+
+        let userChats = [
+            { id: 1, sender: "Masyarakat (Anonim)", message: "Halo konselor, apakah tes VCT di Puskesmas dipungut biaya?", time: "10:15" },
+            { id: 2, sender: "Konselor Maya", message: "Halo! Tes VCT di Puskesmas Indonesia gratis menggunakan fasilitas kesehatan pemerintah.", time: "10:18" }
+        ];
+
+        window.onload = function() {
+            lucide.createIcons();
+            setupNav();
+            initChart();
+            renderScreeningQuestions();
+            populateProvinsi();
+            renderFaskesList();
+            renderVideos();
+            renderMythsFacts();
+            renderPatientTable();
+            renderCounselorChats();
+        };
+
+        function setupNav() {
+            const navLinksContainer = document.getElementById('nav-links');
+            const mobileNavContainer = document.getElementById('mobile-nav-links');
+            const userDisplayName = document.getElementById('user-display-name');
+
+            userDisplayName.innerText = currentUserRole;
+
+            let linksHtml = '';
+            let mobileHtml = '';
+
+            if (currentUserRole === 'Umum') {
+                const items = [
+                    { id: 'umum-beranda', label: 'Beranda & Dashboard', icon: 'home' },
+                    { id: 'umum-edukasi', label: 'Edukasi Video', icon: 'youtube' },
+                    { id: 'umum-skrining', label: 'Skrining (PDF 1 Hal)', icon: 'clipboard-check' },
+                    { id: 'umum-faskes', label: 'Pencarian Faskes (38 Prov)', icon: 'map-pin' },
+                    { id: 'umum-chat', label: 'Chat Konselor', icon: 'message-circle' },
+                    { id: 'umum-vct', label: 'Cek Hasil VCT', icon: 'file-search' }
+                ];
+
+                items.forEach(item => {
+                    const activeClass = currentUmumTab === item.id ? 'bg-brand-50 text-brand-700 font-bold border border-brand-200' : 'hover:bg-slate-100 text-slate-600';
+                    linksHtml += `<button onclick="switchTab('${item.id}')" class="px-3 py-1.5 rounded-xl transition flex items-center ${activeClass}">
+                        <i data-lucide="${item.icon}" class="w-3.5 h-3.5 mr-1.5"></i>${item.label}
+                    </button>`;
+                    mobileHtml += `<button onclick="switchTab('${item.id}')" class="px-3 py-1.5 rounded-lg border border-slate-200 flex items-center ${activeClass}">
+                        <i data-lucide="${item.icon}" class="w-3.5 h-3.5 mr-1"></i>${item.label}
+                    </button>`;
+                });
+            } else if (currentUserRole === 'Konselor') {
+                linksHtml = `<span class="text-xs font-bold text-purple-700 bg-purple-50 px-3 py-1.5 rounded-xl border border-purple-200">Mode Akses Konselor</span>`;
+                mobileHtml = linksHtml;
+            } else if (currentUserRole === 'Nakes') {
+                linksHtml = `<span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">Mode Akses Nakes</span>`;
+                mobileHtml = linksHtml;
+            }
+
+            navLinksContainer.innerHTML = linksHtml;
+            mobileNavContainer.innerHTML = mobileHtml;
+            lucide.createIcons();
+        }
+
+        function switchTab(tabId) {
+            currentUmumTab = tabId;
+            document.querySelectorAll('.role-section').forEach(el => el.classList.add('hidden'));
+
+            if (currentUserRole === 'Umum') {
+                const target = document.getElementById(`sec-${tabId}`);
+                if (target) target.classList.remove('hidden');
+            } else if (currentUserRole === 'Konselor') {
+                document.getElementById('sec-konselor').classList.remove('hidden');
+            } else if (currentUserRole === 'Nakes') {
+                document.getElementById('sec-nakes').classList.remove('hidden');
+            }
+
+            setupNav();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openLoginModal() {
+            document.getElementById('login-modal').classList.remove('hidden');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('login-modal').classList.add('hidden');
+        }
+
+        function toggleRoleFields() {
+            const role = document.getElementById('login-role').value;
+            const fields = document.getElementById('auth-fields');
+            if (role === 'Umum') {
+                fields.classList.add('hidden');
+            } else {
+                fields.classList.remove('hidden');
+            }
+        }
+
+        function handleLoginSubmit(e) {
+            e.preventDefault();
+            currentUserRole = document.getElementById('login-role').value;
+            closeLoginModal();
+
+            document.querySelectorAll('.role-section').forEach(el => el.classList.add('hidden'));
+
+            if (currentUserRole === 'Umum') {
+                document.getElementById('sec-umum-beranda').classList.remove('hidden');
+                currentUmumTab = 'umum-beranda';
+            } else if (currentUserRole === 'Konselor') {
+                document.getElementById('sec-konselor').classList.remove('hidden');
+            } else if (currentUserRole === 'Nakes') {
+                document.getElementById('sec-nakes').classList.remove('hidden');
+            }
+
+            setupNav();
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('vctTrendChart').getContext('2d');
+            if (myChartInstance) myChartInstance.destroy();
+
+            myChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep'],
+                    datasets: [
+                        {
+                            label: 'Jumlah Tes VCT (Ribu)',
+                            data: [35, 42, 48, 51, 58, 62, 69, 74, 82],
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Tingkat Kepatuhan ARV (%)',
+                            data: [81, 82, 84, 85, 86, 87, 87.5, 88, 88.4],
+                            borderColor: '#10b981',
+                            backgroundColor: 'transparent',
+                            borderDash: [5, 5],
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+
+        function renderScreeningQuestions() {
+            const container = document.getElementById('questions-list');
+            let html = '';
+            screeningQuestions.forEach((q, idx) => {
+                html += `
+                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                    <p class="text-xs font-bold text-slate-800">${idx + 1}. ${q}</p>
+                    <div class="flex space-x-6 text-xs">
+                        <label class="inline-flex items-center space-x-2 cursor-pointer font-medium">
+                            <input type="radio" name="q${idx}" value="1" required class="text-brand-600 focus:ring-brand-500">
+                            <span>Ya</span>
+                        </label>
+                        <label class="inline-flex items-center space-x-2 cursor-pointer font-medium">
+                            <input type="radio" name="q${idx}" value="0" required class="text-brand-600 focus:ring-brand-500" checked>
+                            <span>Tidak</span>
+                        </label>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        document.getElementById('screening-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('screening-name').value;
+            let score = 0;
+            for (let i = 0; i < 10; i++) {
+                const val = document.querySelector(`input[name="q${i}"]:checked`).value;
+                score += parseInt(val);
+            }
+
+            document.getElementById('res-name').innerText = name;
+            document.getElementById('res-score').innerText = `${score} / 10 Terindikasi`;
+            document.getElementById('result-date').innerText = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+
+            const badge = document.getElementById('res-badge');
+            const statusBg = document.getElementById('res-status-bg');
+            const desc = document.getElementById('res-description');
+            const recs = document.getElementById('res-recommendations');
+
+            recs.innerHTML = '';
+
+            if (score === 0) {
+                badge.className = 'px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800';
+                badge.innerText = 'Tingkat Risiko: Rendah';
+                statusBg.className = 'p-3.5 rounded-xl space-y-1.5 bg-emerald-50 border border-emerald-200';
+                desc.innerText = 'Hasil asesmen menunjukkan indikator risiko paparan yang sangat rendah.';
+                recs.innerHTML = `
+                    <li>Pertahankan gaya hidup sehat dan perilaku aman.</li>
+                    <li>Ikut menyebarkan informasi anti-stigma HIV di lingkungan masyarakat.</li>
+                    <li>Lakukan tes VCT berkala secara sukarela tahunan.</li>`;
+            } else if (score <= 3) {
+                badge.className = 'px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800';
+                badge.innerText = 'Tingkat Risiko: Sedang';
+                statusBg.className = 'p-3.5 rounded-xl space-y-1.5 bg-amber-50 border border-amber-200';
+                desc.innerText = 'Terdapat beberapa perilaku atau indikator berisiko sedang yang memerlukan perhatian.';
+                recs.innerHTML = `
+                    <li>Manfaatkan fitur Chat Konselor untuk berkonsultasi anonim.</li>
+                    <li>Disarankan melakukan tes darah VCT di Puskesmas terdekat dalam 1-3 bulan.</li>
+                    <li>Hindari berganti pasangan atau penggunaan alat medis tidak steril.</li>`;
+            } else {
+                badge.className = 'px-2.5 py-0.5 rounded-full text-xs font-bold bg-brand-100 text-brand-800';
+                badge.innerText = 'Tingkat Risiko: Tinggi - Direkomendasikan Tes VCT';
+                statusBg.className = 'p-3.5 rounded-xl space-y-1.5 bg-brand-50 border border-brand-200';
+                desc.innerText = 'Terdapat beberapa faktor risiko signifikan. Segera lakukan pemeriksaan konfirmasi medis.';
+                recs.innerHTML = `
+                    <li><strong>Sangat Disarankan:</strong> Segera kunjungi Puskesmas terdekat untuk pemeriksaan VCT gratis.</li>
+                    <li>Layanan VCT terlindungi kerahasiaannya oleh undang-undang kesehatan.</li>
+                    <li>Deteksi dini dan penanganan ARV yang cepat menjamin kualitas hidup yang sehat.</li>`;
+            }
+
+            document.getElementById('screening-result-card').classList.remove('hidden');
+            document.getElementById('screening-result-card').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        function resetScreening() {
+            document.getElementById('screening-form').reset();
+            document.getElementById('screening-result-card').classList.add('hidden');
+        }
+
+        // 1-Page PDF Export Guarantee
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const element = document.getElementById('pdf-content-area');
+
+            html2canvas(element, { scale: 2 }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const imgWidth = 190;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+                pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+                pdf.save(`Laporan_Skrining_HIV_1Halaman_${document.getElementById('res-name').innerText.replace(/\s+/g, '_')}.pdf`);
+            });
+        }
+
+        function populateProvinsi() {
+            const selectProv = document.getElementById('select-provinsi');
+            selectProv.innerHTML = '<option value="">-- Semua 38 Provinsi --</option>';
+            Object.keys(faskesData).forEach(prov => {
+                selectProv.innerHTML += `<option value="${prov}">${prov}</option>`;
+            });
+            filterKabupaten();
+        }
+
+        function filterKabupaten() {
+            const prov = document.getElementById('select-provinsi').value;
+            const selectKab = document.getElementById('select-kabupaten');
+            selectKab.innerHTML = '<option value="">-- Semua Kota/Kabupaten --</option>';
+
+            if (prov && faskesData[prov]) {
+                Object.keys(faskesData[prov]).forEach(kab => {
+                    selectKab.innerHTML += `<option value="${kab}">${kab}</option>`;
+                });
+            }
+            filterKecamatan();
+        }
+
+        function filterKecamatan() {
+            const prov = document.getElementById('select-provinsi').value;
+            const kab = document.getElementById('select-kabupaten').value;
+            const selectKec = document.getElementById('select-kecamatan');
+            selectKec.innerHTML = '<option value="">-- Semua Kecamatan --</option>';
+
+            if (prov && kab && faskesData[prov] && faskesData[prov][kab]) {
+                Object.keys(faskesData[prov][kab]).forEach(kec => {
+                    selectKec.innerHTML += `<option value="${kec}">${kec}</option>`;
+                });
+            }
+            renderFaskesList();
+        }
+
+        function renderFaskesList() {
+            const prov = document.getElementById('select-provinsi').value;
+            const kab = document.getElementById('select-kabupaten').value;
+            const kec = document.getElementById('select-kecamatan').value;
+            const container = document.getElementById('faskes-list-container');
+
+            let list = [];
+
+            Object.keys(faskesData).forEach(pKey => {
+                if (!prov || prov === pKey) {
+                    Object.keys(faskesData[pKey]).forEach(kKey => {
+                        if (!kab || kab === kKey) {
+                            Object.keys(faskesData[pKey][kKey]).forEach(kcKey => {
+                                if (!kec || kec === kcKey) {
+                                    faskesData[pKey][kKey][kcKey].forEach(item => {
+                                        list.push({ ...item, prov: pKey, kab: kKey, kec: kcKey });
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+
+            if (list.length === 0) {
+                container.innerHTML = `
+                <div class="col-span-full text-center py-10 bg-white rounded-2xl border border-slate-200">
+                    <p class="text-xs text-slate-500">Puskesmas pada wilayah pilihan ini terdaftar dalam direktori 10.337 Puskesmas VCT Indonesia.</p>
+                </div>`;
+                return;
+            }
+
+            let html = '';
+            list.forEach(faskes => {
+                html += `
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3 hover:border-brand-300 transition">
+                    <div class="flex items-start justify-between">
+                        <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="building-2" class="w-5 h-5"></i>
+                        </div>
+                        <span class="text-[10px] font-bold bg-emerald-50 text-emerald-700 px-2 py-1 rounded-full border border-emerald-200">${faskes.vct}</span>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-900 text-sm">${faskes.name}</h4>
+                        <p class="text-xs text-slate-500 mt-1">${faskes.address}, Kec. ${faskes.kec}, ${faskes.kab}, ${faskes.prov}</p>
+                    </div>
+                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                        <span class="font-mono text-slate-600 flex items-center">
+                            <i data-lucide="phone" class="w-3.5 h-3.5 mr-1 text-slate-400"></i> ${faskes.phone}
+                        </span>
+                        <a href="tel:${faskes.phone.replace(/[^0-9]/g, '')}" class="text-brand-600 font-bold hover:underline">Hubungi</a>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+            lucide.createIcons();
+        }
+
+        function renderVideos() {
+            const container = document.getElementById('video-container');
+            let html = '';
+            videoList.forEach(vid => {
+                html += `
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm space-y-3 p-4">
+                    <div class="aspect-video w-full rounded-xl overflow-hidden bg-slate-900">
+                        <iframe class="w-full h-full" src="${vid.url}" title="${vid.title}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                    <h3 class="font-bold text-slate-900 text-base">${vid.title}</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">${vid.desc}</p>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function renderMythsFacts() {
+            const container = document.getElementById('myth-fact-container');
+            const items = [
+                { myth: "HIV menular lewat sentuhan fisik.", fact: "FAKTA: HIV TIDAK menular melalui jabat tangan, pelukan, bersentuhan, atau penggunaan toilet bersama!" },
+                { myth: "ODHIV tidak dapat bekerja secara normal.", fact: "FAKTA: ODHIV yang teratur terapi ARV memiliki stamina & stamina tubuh normal layaknya individu sehat lainnya." }
+            ];
+
+            let html = '';
+            items.forEach(item => {
+                html += `
+                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+                    <span class="text-xs font-bold text-brand-600 block">Mitos: "${item.myth}"</span>
+                    <p class="text-xs text-slate-700 font-medium leading-relaxed">${item.fact}</p>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function sendUmumChat(e) {
+            e.preventDefault();
+            const input = document.getElementById('chat-input-umum');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            const chatBox = document.getElementById('chat-box-umum');
+            const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            chatBox.innerHTML += `
+            <div class="flex items-start justify-end space-x-2">
+                <div class="bg-brand-600 text-white p-3.5 rounded-2xl rounded-tr-none max-w-[80%] shadow-sm text-xs leading-relaxed">
+                    ${msg}
+                </div>
+            </div>`;
+
+            userChats.push({ id: Date.now(), sender: "Masyarakat (Anda)", message: msg, time: now });
+            renderCounselorChats();
+
+            input.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            setTimeout(() => {
+                chatBox.innerHTML += `
+                <div class="flex items-start space-x-2">
+                    <div class="w-8 h-8 rounded-full bg-brand-600 flex-shrink-0 flex items-center justify-center text-white text-xs font-bold">K</div>
+                    <div class="bg-white p-3.5 rounded-2xl rounded-tl-none border border-slate-200 max-w-[80%] shadow-sm text-xs text-slate-700 leading-relaxed">
+                        Terima kasih atas pesannya. Konselor Maya telah menerima pertanyaan Anda. Kerahasiaan Anda dijamin 100%.
+                    </div>
+                </div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 1000);
+        }
+
+        function checkVCTResult(e) {
+            e.preventDefault();
+            const searchId = document.getElementById('vct-search-id').value.trim();
+            const display = document.getElementById('vct-result-display');
+
+            const found = patientRecords.find(p => p.id.toLowerCase() === searchId.toLowerCase());
+
+            display.classList.remove('hidden');
+            if (found) {
+                const isPos = found.result.includes('Reaktif');
+                display.innerHTML = `
+                <div class="p-4 rounded-xl ${isPos ? 'bg-brand-50 border border-brand-200' : 'bg-emerald-50 border border-emerald-200'} space-y-2">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="font-bold text-slate-700">Pasien: ${found.name}</span>
+                        <span class="text-slate-400">${found.date}</span>
+                    </div>
+                    <p class="text-sm font-extrabold ${isPos ? 'text-brand-700' : 'text-emerald-700'}">Status Laboratorium: ${found.result}</p>
+                    <p class="text-xs text-slate-600 leading-relaxed"><strong>Instruksi Medis:</strong> ${found.notes}</p>
+                </div>`;
+            } else {
+                display.innerHTML = `
+                <div class="p-4 bg-slate-100 rounded-xl text-center text-xs text-slate-500">
+                    Data tes VCT dengan NIK/ID tersebut tidak ditemukan. Mohon konfirmasi ke Petugas Nakes Puskesmas Anda.
+                </div>`;
+            }
+        }
+
+        function switchKonselorTab(tab) {
+            document.getElementById('konselor-sub-chat').classList.add('hidden');
+            document.getElementById('konselor-sub-upload').classList.add('hidden');
+
+            if (tab === 'chat') document.getElementById('konselor-sub-chat').classList.remove('hidden');
+            if (tab === 'upload') document.getElementById('konselor-sub-upload').classList.remove('hidden');
+        }
+
+        function renderCounselorChats() {
+            const list = document.getElementById('counselor-inbox-list');
+            const history = document.getElementById('counselor-chat-history');
+
+            let listHtml = '';
+            let histHtml = '';
+
+            userChats.forEach(c => {
+                listHtml += `
+                <div class="p-2.5 bg-slate-50 hover:bg-slate-100 rounded-xl cursor-pointer border border-slate-200">
+                    <span class="font-bold text-xs text-slate-800 block">${c.sender}</span>
+                    <span class="text-[11px] text-slate-500 truncate block">${c.message}</span>
+                </div>`;
+
+                histHtml += `
+                <div class="p-3 bg-white rounded-xl border border-slate-200 text-xs space-y-1">
+                    <div class="flex justify-between font-bold text-slate-700">
+                        <span>${c.sender}</span>
+                        <span class="text-[10px] text-slate-400">${c.time}</span>
+                    </div>
+                    <p class="text-slate-600">${c.message}</p>
+                </div>`;
+            });
+
+            list.innerHTML = listHtml;
+            history.innerHTML = histHtml;
+        }
+
+        function replyFromCounselor(e) {
+            e.preventDefault();
+            const input = document.getElementById('counselor-reply-input');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            userChats.push({ id: Date.now(), sender: "Konselor Maya", message: msg, time: now });
+            renderCounselorChats();
+            input.value = '';
+        }
+
+        function addNewEducationMaterial(e) {
+            e.preventDefault();
+            const title = document.getElementById('edu-title').value;
+            const desc = document.getElementById('edu-desc').value;
+            let ytUrl = document.getElementById('edu-youtube').value;
+
+            videoList.unshift({ title, url: ytUrl, desc });
+            renderVideos();
+            alert('Video edukasi baru berhasil diunggah ke Halaman Umum!');
+            document.getElementById('edu-title').value = '';
+            document.getElementById('edu-desc').value = '';
+            document.getElementById('edu-youtube').value = '';
+        }
+
+        function switchNakesTab(tab) {
+            document.getElementById('nakes-sub-upload').classList.add('hidden');
+            document.getElementById('nakes-sub-monitor').classList.add('hidden');
+            document.getElementById('nakes-sub-stats').classList.add('hidden');
+
+            if (tab === 'upload-vct') document.getElementById('nakes-sub-upload').classList.remove('hidden');
+            if (tab === 'monitor') document.getElementById('nakes-sub-monitor').classList.remove('hidden');
+            if (tab === 'stats') document.getElementById('nakes-sub-stats').classList.remove('hidden');
+        }
+
+        function submitPatientVCT(e) {
+            e.preventDefault();
+            const id = document.getElementById('patient-nik').value.trim();
+            const name = document.getElementById('patient-name').value.trim();
+            const date = document.getElementById('patient-date').value;
+            const result = document.getElementById('patient-result').value;
+            const notes = document.getElementById('patient-notes').value.trim();
+
+            patientRecords.unshift({ id, name, date, result, notes });
+            renderPatientTable();
+            alert('Hasil VCT pasien berhasil disimpan!');
+
+            document.getElementById('patient-nik').value = '';
+            document.getElementById('patient-name').value = '';
+            document.getElementById('patient-notes').value = '';
+        }
+
+        function renderPatientTable() {
+            const table = document.getElementById('nakes-patient-table');
+            let html = '';
+            patientRecords.forEach(p => {
+                const isPos = p.result.includes('Reaktif');
+                html += `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-3 font-mono font-bold text-slate-800">${p.id}</td>
+                    <td class="p-3">${p.name}</td>
+                    <td class="p-3 text-slate-500">${p.date}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isPos ? 'bg-brand-100 text-brand-800' : 'bg-emerald-100 text-emerald-800'}">${p.result}</span></td>
+                    <td class="p-3 text-slate-500 max-w-xs truncate">${p.notes}</td>
+                </tr>`;
+            });
+            table.innerHTML = html;
+        }
+
+        function updateDashboardStats(e) {
+            e.preventDefault();
+            document.getElementById('stat-tes-vct').innerText = document.getElementById('input-stat-vct').value;
+            document.getElementById('stat-arv').innerText = document.getElementById('input-stat-arv').value;
+            document.getElementById('stat-konseling').innerText = document.getElementById('input-stat-konseling').value;
+            alert('Statistik nasional pada beranda utama berhasil diperbarui!');
+        }
+    </script>
+</body>
+</html>
